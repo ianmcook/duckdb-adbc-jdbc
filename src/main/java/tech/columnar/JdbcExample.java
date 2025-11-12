@@ -76,9 +76,9 @@ public class JdbcExample {
                 return;
             }
 
-            try (ResultSet rs = stmt.executeQuery("SELECT * FROM lineitem;")) {
-                if (useArrayList) {
-                    // Option B: Store in ArrayList of Object arrays
+            if (useArrayList) {
+                // Option B: Store in ArrayList of Object arrays
+                try (ResultSet rs = stmt.executeQuery("SELECT * FROM lineitem;")) {
                     List<Object[]> rows = new ArrayList<>();
                     ResultSetMetaData metaData = rs.getMetaData();
                     int columnCount = metaData.getColumnCount();
@@ -102,9 +102,11 @@ public class JdbcExample {
                     System.out.println("Query execution and result transfer time: " + String.format("%.2f", durationMs) + " ms");
                     System.out.println("Number of rows: " + rowCount);
                     System.out.println("Max JVM heap memory used: " + usedMemoryMB + " MB");
-                } else {
-                    // Option C: Store results in a CachedRowSet
-                    CachedRowSet cachedRowSet = RowSetProvider.newFactory().createCachedRowSet();
+                }
+            } else {
+                // Option C: Store results in a CachedRowSet
+                try (ResultSet rs = stmt.executeQuery("SELECT * FROM lineitem;");
+                     CachedRowSet cachedRowSet = RowSetProvider.newFactory().createCachedRowSet()) {
                     cachedRowSet.populate(rs);
 
                     long endTime = System.nanoTime();
@@ -121,8 +123,6 @@ public class JdbcExample {
                     System.out.println("Query execution and result transfer time: " + String.format("%.2f", durationMs) + " ms");
                     System.out.println("Number of rows: " + rowCount);
                     System.out.println("Max JVM heap memory used: " + usedMemoryMB + " MB");
-
-                    cachedRowSet.close();
                 }
             }
         }
