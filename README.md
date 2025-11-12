@@ -16,6 +16,8 @@ limitations under the License.
 
 # Comparing ADBC and JDBC query result transfer with DuckDB in Java
 
+This project demonstrates different approaches for querying and materializing large result sets using both ADBC and JDBC with DuckDB. The examples run a `SELECT *` query on the TPC-H scale factor 1 `lineitem` table and materialize the 6,001,215-row result in memory using various techniques.
+
 ## Running the examples
 
 ### ADBC example
