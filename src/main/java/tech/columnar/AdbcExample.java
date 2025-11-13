@@ -29,6 +29,7 @@ import org.apache.arrow.vector.ipc.ArrowReader;
 import org.apache.arrow.vector.ipc.message.ArrowRecordBatch;
 import org.apache.arrow.vector.VectorUnloader;
 import org.apache.arrow.vector.util.VectorSchemaRootAppender;
+import org.apache.arrow.util.AutoCloseables;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -75,11 +76,13 @@ public class AdbcExample {
                     long endTime = System.nanoTime();
                     double durationMs = (endTime - startTime) / 1_000_000.0;
                     long usedMemoryMB = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024);
+                    long arrowMemoryMB = allocator.getAllocatedMemory() / (1024 * 1024);
 
                     System.out.println("Result materialization: VectorSchemaRoot");
                     System.out.println("Query execution and result transfer time: " + String.format("%.2f", durationMs) + " ms");
                     System.out.println("Number of rows: " + totalRows);
-                    System.out.println("Max JVM heap memory used: " + usedMemoryMB + " MB");
+                    System.out.println("JVM heap memory used: " + usedMemoryMB + " MB");
+                    System.out.println("Arrow allocator memory used: " + arrowMemoryMB + " MB");
                 }
             } else {
                 // Option B: Materialize all batches into List<ArrowRecordBatch>
@@ -94,18 +97,21 @@ public class AdbcExample {
                         numRows += root.getRowCount();
                         var batch = unloader.getRecordBatch();
                         batches.add(batch);
-                        batch.close();
                     }
 
                     long endTime = System.nanoTime();
                     double durationMs = (endTime - startTime) / 1_000_000.0;
                     long usedMemoryMB = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024);
+                    long arrowMemoryMB = allocator.getAllocatedMemory() / (1024 * 1024);
                     totalRows = numRows;
 
                     System.out.println("Result materialization: List<ArrowRecordBatch>");
                     System.out.println("Query execution and result transfer time: " + String.format("%.2f", durationMs) + " ms");
                     System.out.println("Number of rows: " + totalRows);
-                    System.out.println("Max JVM heap memory used: " + usedMemoryMB + " MB");
+                    System.out.println("JVM heap memory used: " + usedMemoryMB + " MB");
+                    System.out.println("Arrow allocator memory used: " + arrowMemoryMB + " MB");
+
+                    AutoCloseables.close(batches);
                 }
             }
         }

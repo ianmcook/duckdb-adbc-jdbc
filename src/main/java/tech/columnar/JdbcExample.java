@@ -67,11 +67,13 @@ public class JdbcExample {
                     long endTime = System.nanoTime();
                     double durationMs = (endTime - startTime) / 1_000_000.0;
                     long usedMemoryMB = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024);
+                    long arrowMemoryMB = allocator.getAllocatedMemory() / (1024 * 1024);
 
                     System.out.println("Result materialization: DuckDBResultSet (Arrow VectorSchemaRoot)");
                     System.out.println("Query execution and result transfer time: " + String.format("%.2f", durationMs) + " ms");
                     System.out.println("Number of rows: " + rowCount);
-                    System.out.println("Max JVM heap memory used: " + usedMemoryMB + " MB");
+                    System.out.println("JVM heap memory used: " + usedMemoryMB + " MB");
+                    System.out.println("Arrow allocator memory used: " + arrowMemoryMB + " MB");
                 }
                 return;
             }
@@ -101,7 +103,7 @@ public class JdbcExample {
                     System.out.println("Result materialization: ArrayList<Object[]>");
                     System.out.println("Query execution and result transfer time: " + String.format("%.2f", durationMs) + " ms");
                     System.out.println("Number of rows: " + rowCount);
-                    System.out.println("Max JVM heap memory used: " + usedMemoryMB + " MB");
+                    System.out.println("JVM heap memory used: " + usedMemoryMB + " MB");
                 }
             } else {
                 // Option C: Store results in a CachedRowSet
@@ -122,7 +124,7 @@ public class JdbcExample {
                     System.out.println("Result materialization: CachedRowSet");
                     System.out.println("Query execution and result transfer time: " + String.format("%.2f", durationMs) + " ms");
                     System.out.println("Number of rows: " + rowCount);
-                    System.out.println("Max JVM heap memory used: " + usedMemoryMB + " MB");
+                    System.out.println("JVM heap memory used: " + usedMemoryMB + " MB");
                 }
             }
         }
